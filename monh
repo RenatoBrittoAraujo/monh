@@ -1,0 +1,134 @@
+#!/bin/bash
+
+DOT_MONH=~/.monh
+MONITOR_SETTINGS=~/.config/monitors.xml
+
+function xrandr_reload() {
+    # monitor.xml path
+    MONITOR_XML="$HOME/.config/monitors.xml"
+
+    # get number of declared monitors
+    NUM=$(xmllint --xpath 'count(//monitors/configuration['1']/logicalmonitor)' $MONITOR_XML)
+
+    # loop thru declared monitors to create the command line parameters
+    for (( i=1; i<=$NUM; i++ )); do
+        # get attributes of current monitor (name and x & y positions)
+        NAME=$(xmllint --xpath 'string(//monitors/configuration['1']/logicalmonitor['$i']/monitor/monitorspec/connector/text())' $MONITOR_XML 2>/dev/null)
+        POS_X=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/x/text()' $MONITOR_XML 2>/dev/null)
+        POS_Y=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/y/text()' $MONITOR_XML 2>/dev/null)
+        ROTATE=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/rotation/text()' $MONITOR_XML 2>/dev/null)
+        WIDTH=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/monitor/mode/width/text()' $MONITOR_XML 2>/dev/null)
+        HEIGHT=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/monitor/mode/height/text()' $MONITOR_XML 2>/dev/null)
+        RATE=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/monitor/mode/rate/text()' $MONITOR_XML 2>/dev/null)
+        PRIMARY=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/primary/text()' $MONITOR_XML 2>/dev/null)
+        SCALE=$(xmllint --xpath '//monitors/configuration['1']/logicalmonitor['$i']/scale/text()' $MONITOR_XML 2>/dev/null)
+
+        printf "NAME:\t\t $NAME\n"
+        printf "POS_X:\t\t $POS_X\n"
+        printf "POS_Y:\t\t $POS_Y\n"
+        printf "ROTATE:\t\t $ROTATE\n"
+        printf "WIDTH:\t\t $WIDTH\n"
+        printf "HEIGHT:\t\t $HEIGHT\n"
+        printf "RATE:\t\t $RATE\n"
+        printf "PRIMARY:\t $PRIMARY\n"
+        printf "SCALE:\t $SCALE\n"
+
+        ROTATE=normal
+
+        # if position is defined for current monitor, add its position and orientation to command line parameters
+        [ -n "$POS_X" ] && PARAM_ARR=("${PARAM_ARR[@]}" "--output" "$NAME" "--pos" "${POS_X}x${POS_Y}" "--mode" "${WIDTH}x${HEIGHT}" "--rate" "$RATE" "--rotate" "$ROTATE" "--scale" "${SCALE}")
+
+        # if monitor is defined as primary, adds it to command line parameters
+        [ "$PRIMARY" = "yes" ] && PARAM_ARR=("${PARAM_ARR[@]}" "--primary")
+    done
+
+    echo "======="
+    echo "${PARAM_ARR[@]}"
+    echo "======="
+
+    # position all monitors
+    xrandr "${PARAM_ARR[@]}"
+}
+
+function save() {
+    if [[ -f $DOT_MONH/$1 ]]
+    then
+        printf "\nMonitor configuration '$1' already exists!\n\n"
+    else
+        cp $MONITOR_SETTINGS $DOT_MONH/$1
+        xrandr_reload
+    fi
+}
+
+function load() {
+    if [[ -f $DOT_MONH/$1 ]] 
+    then
+        cp $DOT_MONH/$1 $MONITOR_SETTINGS 
+        xrandr_reload # &> /dev/null
+    else
+        printf "\nMonitor configuration '$1' doesn't exist!\n\n"
+    fi
+}
+
+function cstmls() {
+    ls $DOT_MONH
+}
+
+function print() {
+    printf "\n"
+    [ -n $1 ] && {
+        cat $DOT_MONH/$1
+    } || {
+        cat $MONITOR_SETTINGS
+    }
+    printf "\n"
+}
+
+function removecfg() {
+    rm $DOT_MONH/$1
+}
+
+function ensure_dot_monh() {    
+    sudo apt install libxml2-utils &> /dev/null
+    [ -d $DOT_MONH ] || {
+        echo created
+        mkdir $DOT_MONH
+    }
+}
+
+function main() {
+    ensure_dot_monh
+
+    xrandr_reload
+
+    # case $1 in
+
+    # save)
+    #     save $2
+    #     ;;
+
+    # load)
+    #     load $2
+    #     ;;
+
+    # ls)
+    #     cstmls
+    #     ;;
+
+    # print)
+    #     print $2
+    #     ;;
+
+    # rm)
+    #     removecfg $2
+    #     ;;
+
+    # *)
+    #     echo "mohn: '$1' is not a monh command. See 'mohn --help'"
+    #     ;;
+    # esac
+}
+
+main $1 $2
+
+

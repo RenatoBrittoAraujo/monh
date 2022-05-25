@@ -1,0 +1,39 @@
+# ===== MVP
+
+# spike: where to save?
+# SOL: ~/.monh
+
+# save current monitor config as 
+# monh save config1
+
+# load specific monitor config
+# monh load config1
+
+# see current monitor configs
+# monh ls
+
+# ===== V1
+
+# revert to last configed
+# monh revert
+
+# confirmation of good setup (timed)
+
+# load specific monitor config
+# monh cat config1
+# monh cat (current config)
+
+# ===== V2
+
+# helpers
+# monh help 
+# monh load help 
+# monh save help 
+# monh cat help 
+
+# tab fillers
+
+# ===== V3
+
+# make package
+# publish somewhere
