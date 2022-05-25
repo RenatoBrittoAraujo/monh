@@ -1,16 +1,26 @@
 # ===== MVP
 
-# spike: where to save?
+# [DONE] spike: where to save?
 # SOL: ~/.monh
 
-# save current monitor config as 
+# !spike: figure out how to apply configs using wayland
+# this fucking thing is the only cockblock
+
+# [DONE] save current monitor config as 
 # monh save config1
 
-# load specific monitor config
+# [DONE] load specific monitor config
 # monh load config1
 
-# see current monitor configs
+# [DONE] see current monitor configs
 # monh ls
+
+# [DONE] load specific monitor config
+# monh print config1
+# monh print (current config)
+
+# [DONE] remove config
+# monh rm config1
 
 # ===== V1
 
@@ -18,10 +28,6 @@
 # monh revert
 
 # confirmation of good setup (timed)
-
-# load specific monitor config
-# monh cat config1
-# monh cat (current config)
 
 # ===== V2
 
