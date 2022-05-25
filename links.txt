@@ -1,0 +1,2 @@
+https://askubuntu.com/questions/973499/wayland-how-to-set-a-custom-resolution
+
