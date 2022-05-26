@@ -3,12 +3,17 @@
 DOT_MONH=~/.monh
 MONITOR_SETTINGS=~/.config/monitors.xml
 
+# COLORS
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NORMAL='\033[0m'
+
 function xrandr_reload() {
     # monitor.xml path
     MONITOR_XML="$HOME/.config/monitors.xml"
 
     # get number of declared monitors
-    NUM=$(xmllint --xpath 'count(//monitors/configuration['1']/logicalmonitor)' $MONITOR_XML)
+    NUM=$(xmllint --xpath 'count(//monitors/configuration['1']/logicalmonhttps://github.com/RenatoBrittoAraujo/monhitor)' $MONITOR_XML)
 
     # loop thru declared monitors to create the command line parameters
     for (( i=1; i<=$NUM; i++ )); do
@@ -88,6 +93,8 @@ function removecfg() {
     rm $DOT_MONH/$1
 }
 
+TST=bca
+
 function ensure_dot_monh() {    
     sudo apt install libxml2-utils &> /dev/null
     [ -d $DOT_MONH ] || {
@@ -96,10 +103,40 @@ function ensure_dot_monh() {
     }
 }
 
-function main() {
-    ensure_dot_monh
+function is_wayland_enabled() {
+    [ $XDG_SESSION_TYPE != "x11" ] || {
+        (exit 1)
+    }
+}
 
-    xrandr_reload
+function disable_wayland() {
+    printf "\n"
+    echo "You might be prompted for your password rigth now."
+    sudo sed -i 's/#WaylandEnable=false/WaylandEnable=false/' /etc/gdm3/custom.conf
+    sudo systemctl restart gdm3
+}
+
+
+function prompt_disable_wayland() {
+    echo "Wayland must be disabled in order for monh to function properly."
+    printf "Disabling wayland requires ${RED}Logging out${NORMAL} and sudo.\n\n"
+    printf "Do you want to ${RED}disable wayland${NORMAL}?${YELLOW} [Y/n]${NORMAL} "
+    read ok
+
+    [[ $ok == "y" || $ok == "Y" ]] && disable_wayland || {
+        printf "\nUnfortunately, this package can't help you.\n\n"
+    }
+}
+
+function initialize_env() {
+    ensure_dot_monh
+    is_wayland_enabled && prompt_disable_wayland
+}
+
+function main() {
+    initialize_env
+    
+    # xrandr_reload
 
     # case $1 in
 
