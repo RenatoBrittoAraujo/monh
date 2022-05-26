@@ -13,7 +13,7 @@ function xrandr_reload() {
     MONITOR_XML="$HOME/.config/monitors.xml"
 
     # get number of declared monitors
-    NUM=$(xmllint --xpath 'count(//monitors/configuration['1']/logicalmonhttps://github.com/RenatoBrittoAraujo/monhitor)' $MONITOR_XML)
+    NUM=$(xmllint --xpath 'count(//monitors/configuration['1']/logicalmonitor)' $MONITOR_XML)
 
     # loop thru declared monitors to create the command line parameters
     for (( i=1; i<=$NUM; i++ )); do
@@ -41,7 +41,7 @@ function xrandr_reload() {
         ROTATE=normal
 
         # if position is defined for current monitor, add its position and orientation to command line parameters
-        [ -n "$POS_X" ] && PARAM_ARR=("${PARAM_ARR[@]}" "--output" "$NAME" "--pos" "${POS_X}x${POS_Y}" "--mode" "${WIDTH}x${HEIGHT}" "--rate" "$RATE" "--rotate" "$ROTATE" "--scale" "${SCALE}")
+        [ -n "$POS_X" ] && PARAM_ARR=("${PARAM_ARR[@]}" "--output" "$NAME" "--pos" "${POS_X}x${POS_Y}" "--mode" "${WIDTH}x${HEIGHT}" "--rotate" "$ROTATE")
 
         # if monitor is defined as primary, adds it to command line parameters
         [ "$PRIMARY" = "yes" ] && PARAM_ARR=("${PARAM_ARR[@]}" "--primary")
@@ -50,6 +50,11 @@ function xrandr_reload() {
     echo "======="
     echo "${PARAM_ARR[@]}"
     echo "======="
+
+    echo "======= RIGHT ONE"
+    echo "--output DisplayPort-2 --primary --mode 3840x2160 --pos 0x0 --rotate normal --output HDMI-A-0 --mode 3840x2160 --pos 5120x0 --rotate normal --output DVI-D-0 --mode 1920x1080 --pos 10240x345 --rotate normal"
+    echo "======= RIGHT ONE"
+
 
     # position all monitors
     xrandr "${PARAM_ARR[@]}"
@@ -61,7 +66,6 @@ function save() {
         printf "\nMonitor configuration '$1' already exists!\n\n"
     else
         cp $MONITOR_SETTINGS $DOT_MONH/$1
-        xrandr_reload
     fi
 }
 
@@ -69,7 +73,7 @@ function load() {
     if [[ -f $DOT_MONH/$1 ]] 
     then
         cp $DOT_MONH/$1 $MONITOR_SETTINGS 
-        xrandr_reload # &> /dev/null
+        xrandr_reload &> /dev/null
     else
         printf "\nMonitor configuration '$1' doesn't exist!\n\n"
     fi
@@ -92,8 +96,6 @@ function print() {
 function removecfg() {
     rm $DOT_MONH/$1
 }
-
-TST=bca
 
 function ensure_dot_monh() {    
     sudo apt install libxml2-utils &> /dev/null
@@ -138,32 +140,32 @@ function main() {
     
     # xrandr_reload
 
-    # case $1 in
+    case $1 in
 
-    # save)
-    #     save $2
-    #     ;;
+    save)
+        save $2
+        ;;
 
-    # load)
-    #     load $2
-    #     ;;
+    load)
+        load $2
+        ;;
 
-    # ls)
-    #     cstmls
-    #     ;;
+    ls)
+        cstmls
+        ;;
 
-    # print)
-    #     print $2
-    #     ;;
+    print)
+        print $2
+        ;;
 
-    # rm)
-    #     removecfg $2
-    #     ;;
+    rm)
+        removecfg $2
+        ;;
 
-    # *)
-    #     echo "mohn: '$1' is not a monh command. See 'mohn --help'"
-    #     ;;
-    # esac
+    *)
+        echo "mohn: '$1' is not a monh command. See 'mohn --help'"
+        ;;
+    esac
 }
 
 main $1 $2

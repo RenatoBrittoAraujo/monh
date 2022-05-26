@@ -3,8 +3,8 @@
 # [DONE] spike: where to save?
 # SOL: ~/.monh
 
-# !spike: figure out how to apply configs using wayland
-# this fucking thing is the only cockblock
+# [DONE] !spike: figure out how to apply configs using wayland
+# SOL: Disable wayland
 
 # [DONE] save current monitor config as 
 # monh save config1
@@ -21,6 +21,10 @@
 
 # [DONE] remove config
 # monh rm config1
+
+# [DONE] Xrandr reloader
+
+# Xrandr applier
 
 # ===== V1
 
